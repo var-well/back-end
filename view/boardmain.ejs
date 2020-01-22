@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>no</th> <th>title</th> <th>time</th> <th>writer</th> <th>state</th>
+        </tr>
+        <% for (var board of board_list) {%>
+        <tr>
+            <td><%=board['NO'] %></td> 
+            <td><a href='/board/view?no='><%=board['TITLE'] %></a></td> 
+            <td><%=board['TIME'] %></td> <td><%=board['WRITER'] %></td> <td><%=board['STATE'] %></td>
+        </tr>
+        <% } %>
+    </table>     
+    <button onclick='javascript:window.location.href="/board/write"'>WRITE</button>
+</body>
+</html>

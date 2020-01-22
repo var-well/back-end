@@ -1,0 +1,15 @@
+<html>
+<body>
+    <h1>MAIN INDEX PAGE</h1>
+    <% if (user_id) {%>
+        <h2>HELLO <%=user_id%> !!!</h2>
+        <a href='/logout'>LOGOUT!!</a>    <br>
+    <% } else { %>
+        <a href='/login'>LOGIN!!</a>     <br>
+        <a href='/account'>CREATE ACCOUNT!!</a>    <br>
+    <% } 
+        console.log("testing")
+    %>
+    <a href='/board'>BOARD!!</a>    
+</body>
+</html>

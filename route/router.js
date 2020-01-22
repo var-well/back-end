@@ -1,11 +1,16 @@
 const __view__ = '../view/'
 
+function check_login(session, res){
+    if (!session){
+        res.redirect("/login")
+    }
+}
+
 module.exports = (app, connection) => {
     app.get("/", (req, res) => {
         var id = req.session.user_id
-        console.log(req.session.user_id)
 
-        res.render(__view__ + "index.html", {'user_id': id})
+        res.render(__view__ + "index.ejs", {'user_id': id})
     })
 
     app.get("/login", (req, res) => {
@@ -150,7 +155,6 @@ module.exports = (app, connection) => {
         const major = connection.escape(req.body.major)
 
         const query = `INSERT INTO USER VALUES (${user_id}, ${user_pw}, ${email}, ${major}, ${number}, ${name}, ${type})`
-        console.log(query)
         connection.query(query, (err, rows, fields) => {
             if (err){
                 // ERROR
@@ -160,6 +164,82 @@ module.exports = (app, connection) => {
                 req.session.user_id = user_id
                 req.session.save()
                 res.redirect("/")
+            }
+        })
+    })
+
+
+
+
+
+
+
+    //////////////////////////////////////////
+    app.get("/board", (req, res) => {
+        connection.query('SELECT * FROM BOARD', (err, result) => {
+            if (err) {
+
+            } else {
+                var data = []
+
+                for (var elem of result){
+                    data.push({
+                        'NO': elem['NO'],
+                        'TITLE': elem['TITLE'],
+                        'TIME': elem['TIME'],
+                        'WRITER': elem['WRITER'],
+                        'STATE': elem['STATE']
+                    })
+                }
+
+                res.render(__view__ + "boardmain.ejs", {'board_list': data})
+            }
+        })
+    })
+
+    app.get("/board/write", (req, res) => {
+        check_login(req.session.user_id, res)
+        res.render(__view__ + "board_write.ejs")
+    })
+
+    app.post("/board/reg_board", (req, res) => {
+        check_login(req.session.user_id, res)
+
+        const writer = req.session.user_id
+        const title = connection.escape(req.body.title)
+        const content = connection.escape(req.body.content)
+        const password = connection.escape(req.body.password)
+
+        const query = `INSERT INTO BOARD (TITLE, TIME, CONTENT, PASSWORD, WRITER) VALUES (${title}, NOW(), ${content}, ${password}, ${writer})`
+        connection.query(query, (err, result) => {
+            if (err) {
+
+            } else {
+                res.redirect("/board/view?no=" + result.insertId)
+            }
+        })
+    })
+
+    app.get("/board/view", (req, res) => {
+        const no = req.query.no
+        
+        if (!Number.isInteger(no)){
+            // hacking
+        }
+
+        const query = `SELECT * FROM BOARD WHERE NO = ${no}`
+        connection.query(query, (err, result) => {
+            if (err) {
+
+            } else {
+                var data = {
+                    'title': result[0]['TITLE'],
+                    'content': result[0]['CONTENT'],
+                    'writer': result[0]['WRITER'],
+                    'password': result[0]['PASSWORD'],
+                    'state': result[0]['STATE']
+                }
+                res.render(__view__ + 'board_view.ejs', data)
             }
         })
     })
