@@ -1,5 +1,12 @@
 <html>
 <body>
     <h1>MAIN INDEX PAGE</h1>
+    <% if (user_id) {%>
+        <h2>HELLO <%=user_id%> !!!</h2>
+        <a href='/logout'>LOGOUT!!</a>    
+    <% } else { %>
+        <a href='/login'>LOGIN!!</a>     <br>
+        <a href='/account'>CREATE ACCOUNT!!</a>    
+    <% } %>
 </body>
 </html>

@@ -13,6 +13,7 @@ const connection = mysql.createConnection({
     database: 'SETU'
 })
 
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 app.use(session({
     key: "sid",
