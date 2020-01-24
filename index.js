@@ -4,6 +4,7 @@ const route = require('./route/router')(init.app, init.connection)
 
 init.app.listen(init.PORT, () => {
     console.log(`Check out the app at http://localhost:${init.PORT}`);
+    console.log('갓재상')
     //connection.connect()
 })
 
