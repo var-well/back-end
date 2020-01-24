@@ -136,9 +136,13 @@ module.exports = (app, connection) => {
 
             } else {
                 // alert  
-                res.redirect("/")
+                res.redirect("/failed_login")
             }
         })
+    })
+
+    app.get("/failed_login",(req,res)=>{
+        res.send('<script type="text/javascript"> alert("FAILED LOGIN!"); history.go(-1);</script>')
     })
 
     app.get("/account", (req, res) => {
