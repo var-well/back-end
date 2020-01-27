@@ -1,0 +1,22 @@
+<html>
+    <body>
+        <form action="/trychange_userinfo" method="GET">
+            ID: <%=rows[0].id%>
+            <br>
+            EMAIL: <%= rows[0].email%>
+            <br>
+            STUDENT_NUMBER: <%= rows[0].student_number%>
+            <br>
+            NAME: <%= rows[0].name%>
+            <br>
+            TYPE: <%= rows[0].type%>
+            <br>
+            MAJOR: <%= rows[0].major%>
+            <br>
+            <input type="submit" value="change userinfo">
+        </form>
+        <form action="/return" method="GET">
+            <input type="submit" value="to main">
+        </form>
+    </body>
+</html>

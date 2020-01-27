@@ -2,19 +2,43 @@ const __view__ = '../view/'
 
 function check_login(session, res){
     if (!session){
-        res.redirect("/login")
+        res.end()
+        res.redirect("/failed_login")
     }
 }
+
 
 module.exports = (app, connection) => {
     app.get("/", (req, res) => {
         var id = req.session.user_id
-
         res.render(__view__ + "index.ejs", {'user_id': id})
+    })
+
+    app.get("/return",(req,res)=>{
+        res.redirect("/")
     })
 
     app.get("/login", (req, res) => {
         res.render(__view__ + "login.html")
+    })
+
+    app.get("/mypage",(req,res)=>{
+        console.log(req.session.user_id)
+        console.log(req.session.user_pw)
+        const query = `SELECT id,email,student_number,name,type,major FROM USER WHERE ID = ${req.session.user_id}`
+        connection.query(query, (err,rows,result)=>{
+            if(err){
+                res.render(__view__+"login.html")
+            }
+            else{
+                res.render(__view__+"mypage.html",{"rows":rows})
+            }
+        })
+        
+    })
+
+    app.get("/failed_login",(req,res)=>{
+        res.send('<script type="text/javascript"> alert("PLEASE LOGIN"); window.location.href="/";</script>')
     })
 
     app.get("/logout", (req, res) => {
@@ -26,6 +50,35 @@ module.exports = (app, connection) => {
         res.render(__view__ + "find_id.html")
     })
 
+    app.get("/delete_user",(req,res)=>{
+        console.log(req.session.user_id)
+        const query=`delete from user where id=${req.session.user_id}`
+        console.log(query)
+        connection.query(query,(err,result)=>{
+            if(err){
+                console.log("failed")
+                res.send('<script type="text/javascript"> alert("FAILED delete"); window.location.href="/";</script>')
+            }
+            else{
+                console.log("success")
+                req.session.destroy()
+                res.send('<script type="text/javascript"> alert("success delete user"); window.location.href="/";</script>')
+            }
+        })
+    })
+
+    app.post("/change_userinfo",(req,res)=>{
+        const query=`update user set email='${req.body.change_email}', student_number='${req.body.change_number}', name='${req.body.change_name}', type='${req.body.change_type}', major='${req.body.change_major}' where id=${req.session.user_id}`
+        connection.query(query,(err,result)=>{
+            if(err){
+                res.send('<script type="text/javascript"> alert("FAILED change"); window.location.href="/";</script>')
+            }
+            else{
+                res.send('<script type="text/javascript"> alert("SUCCEESS change"); window.location.href="/";</script>')
+            }
+        })
+    })
+
     app.post("/check_find_id", (req, res) => {
         const cert = "test_cert"
 
@@ -34,6 +87,18 @@ module.exports = (app, connection) => {
         req.session.save()
 
         res.render(__view__ + "check_find_id.html", {"email": email})
+    })
+
+    app.get("/trychange_userinfo",(req,res)=>{
+        const query = `SELECT id,email,student_number,name,type,major FROM USER WHERE ID = ${req.session.user_id}`
+        connection.query(query, (err,rows,result)=>{
+            if(err){
+                res.send('<script type="text/javascript"> alert("FAILED join"); window.location.href="/";</script>')
+            }
+            else{
+                res.render(__view__+"trychange_userinfo.html",{"rows":rows})
+            }
+        })
     })
 
     app.post("/find_account_id", (req, res) => {
@@ -119,8 +184,7 @@ module.exports = (app, connection) => {
             }
         })
     })
-
-    
+ 
 
     app.post("/try_login", (req, res) => {
         const user_id = connection.escape(req.body.user_id)
@@ -131,18 +195,15 @@ module.exports = (app, connection) => {
             if (rows.length == 1){
                 console.log("success")
                 req.session.user_id = user_id 
+                req.session.user_pw=user_pw
                 req.session.save()
                 res.redirect("/")
 
             } else {
                 // alert  
-                res.redirect("/failed_login")
+                res.send('<script type="text/javascript"> alert("FAILED LOGIN"); window.location.href="/";</script>')
             }
         })
-    })
-
-    app.get("/failed_login",(req,res)=>{
-        res.send('<script type="text/javascript"> alert("FAILED LOGIN!"); history.go(-1);</script>')
     })
 
     app.get("/account", (req, res) => {
@@ -157,19 +218,42 @@ module.exports = (app, connection) => {
         const type = connection.escape(req.body.type)
         const number = connection.escape(req.body.student_number)
         const major = connection.escape(req.body.major)
-
         const query = `INSERT INTO USER VALUES (${user_id}, ${user_pw}, ${email}, ${major}, ${number}, ${name}, ${type})`
-        connection.query(query, (err, rows, fields) => {
-            if (err){
-                // ERROR
-                // alert
+        var check=0;
 
-            } else {
-                req.session.user_id = user_id
-                req.session.save()
-                res.redirect("/")
-            }
-        })
+        if(req.body.user_id){
+            check+=1
+        }
+        if(req.body.user_pw){
+            check+=1
+        }
+        if(req.body.email){
+            check+=1
+        }
+        if(req.body.name){
+            check+=1
+        }
+        if(req.body.type){
+            check+=1
+        }
+
+        
+        if(check<5){
+            console.log(check)
+            res.send('<script type="text/javascript">alert("FAILED SIGNUP");window.location.href="/";</script>')
+        }
+        else{
+            connection.query(query, (err, rows, fields) => {
+                if (err){
+                    console.log(check)
+                    res.send('<script type="text/javascript">alert("FAILED SIGNUP");window.location.href="/";</script>')
+                } else {
+                    req.session.user_id = user_id
+                    req.session.save()
+                    res.redirect("/")
+                }
+            })
+        }
     })
 
 
@@ -182,6 +266,7 @@ module.exports = (app, connection) => {
     app.get("/board", (req, res) => {
         connection.query('SELECT * FROM BOARD', (err, result) => {
             if (err) {
+                console.error("err: " + err);
 
             } else {
                 var data = []
@@ -200,6 +285,7 @@ module.exports = (app, connection) => {
             }
         })
     })
+
 
     app.get("/board/write", (req, res) => {
         check_login(req.session.user_id, res)

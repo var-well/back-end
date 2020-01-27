@@ -14,8 +14,9 @@
         <% for (var board of board_list) {%>
         <tr>
             <td><%=board['NO'] %></td> 
-            <td><a href='/board/view?no='><%=board['TITLE'] %></a></td> 
-            <td><%=board['TIME'] %></td> <td><%=board['WRITER'] %></td> <td><%=board['STATE'] %></td>
+            <td><a href='/board/view?no=>'+this.board[NO]><%=board['TITLE'] %></a></td> 
+            <td><%=board['TIME'] %></td> <td><%=board['WRITER'] %></td> 
+            <td><%=board['STATE'] %></td>
         </tr>
         <% } %>
     </table>     

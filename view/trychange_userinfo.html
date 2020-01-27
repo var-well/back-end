@@ -1,0 +1,22 @@
+<html>
+    <body>
+        <form action="/change_userinfo" method="POST">
+            ID: <%=rows[0].id%>
+            <br>
+            EMAIL: <input type="text" name="change_email" value=<%= rows[0].email%> >
+            <br>
+            STUDENT_NUMBER: <input type="text" name="change_number" value=<%= rows[0].student_number%>>
+            <br>
+            NAME: <input type="text" name="change_name" value=<%= rows[0].name%>>
+            <br>
+            TYPE: <input type="text" name="change_type" value=<%= rows[0].type%>>
+            <br>
+            MAJOR: <input type="text" name="change_major" value=<%= rows[0].major%>>
+            <br>
+            <input type="submit" value="change_userinfo">
+        </form>
+        <form action ="/delete_user" method="GET">
+            <input type="submit" value="delete_user">
+        </form>
+    </body>
+</html>
